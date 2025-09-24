@@ -5,6 +5,4 @@ xgboost
 matplotlib
 seaborn
 jupyter
-tensorflow
-# ili
 torch

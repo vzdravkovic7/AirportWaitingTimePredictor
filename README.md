@@ -36,7 +36,7 @@ Na osnovu podataka o aerodromu, datumu/vremenu i broju putnika, model predviđa 
    pip install -r requirements.txt
    ```
 
-4. Dodati dataset u data/ i pokreni analizu u Jupyter-u ili main.py.
+4. Dodati dataset u data/ i pokrenuti analizu u Jupyter-u ili main.py.
 
 ## Autor
 
