@@ -1,5 +1,6 @@
 import pandas as pd
 import glob
+from sklearn.impute import SimpleImputer
 
 def load_data(path="../data/*.csv"):
     files = glob.glob(path)
@@ -29,6 +30,11 @@ def clean_data(df):
     df = df[df['TotalPassengerCount'] > 0]
     df = df.drop_duplicates()
     return df
+
+def impute_missing(X):
+    imputer = SimpleImputer(strategy="mean")  # or "median"
+    X_imputed = imputer.fit_transform(X)
+    return pd.DataFrame(X_imputed, columns=X.columns)
 
 def save_cleaned_data(df, output_path="../data/cleaned_airport_waits.csv"):
     df.to_csv(output_path, index=False)
