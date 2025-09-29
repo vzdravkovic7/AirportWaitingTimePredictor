@@ -2,24 +2,9 @@ from preprocessing import load_data, add_date_features, clean_data, impute_missi
 from features import categorize_wait_time, one_hot_encode, normalize_columns
 from models import train_linear_regression, train_random_forest, train_xgboost
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import numpy as np
-import json
-from datetime import datetime
-
-def save_results(results, filename="results.json"):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    results["timestamp"] = timestamp
-    with open(filename, "a") as f:
-        f.write(json.dumps(results) + "\n")
-
-
-def evaluate(y_true, y_pred):
-    return {
-        "MAE": mean_absolute_error(y_true, y_pred),
-        "RMSE": np.sqrt(mean_squared_error(y_true, y_pred)),
-        "R2": r2_score(y_true, y_pred)
-    }
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from evaluate import evaluate, save_results, cross_validate_all_metrics, tune_hyperparameters
 
 
 def main():
@@ -32,7 +17,7 @@ def main():
     df = normalize_columns(df, ["TotalPassengerCount", "FlightCount"])
 
     # use subset for faster testing
-    # df = df.sample(20000, random_state=42)
+    df = df.sample(20000, random_state=42)
 
     # Split features and target
     y = df["AverageWait"]
@@ -40,13 +25,15 @@ def main():
     X = df.drop(columns=[col for col in drop_cols if col in df.columns])
     X = impute_missing(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     # Train models
     models = {
         "Linear Regression": train_linear_regression(X_train, y_train),
         "Random Forest": train_random_forest(X_train, y_train),
-        "XGBoost": train_xgboost(X_train, y_train)
+        "XGBoost": train_xgboost(X_train, y_train),
     }
 
     # Evaluate
@@ -55,9 +42,45 @@ def main():
         X_eval = X_test.values if name == "XGBoost" else X_test
         preds = model.predict(X_eval)
         metrics = evaluate(y_test, preds)
-        print(f"\n{name} performance:")
+        print(f"\n{name} performance (baseline):")
         print(metrics)
-        all_results[name] = metrics
+        all_results[name] = {"baseline": metrics}
+
+        # Cross-validation baseline
+        cv_results = cross_validate_all_metrics(model, X, y, cv=5)
+        all_results[name]["cross_val"] = cv_results
+
+    # Hyperparameter tuning
+    print("\nStarting hyperparameter tuning...")
+
+    rf_params = {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [None, 10, 20, 30],
+        "min_samples_split": [2, 5, 10]
+    }
+
+    xgb_params = {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [3, 6, 10],
+        "learning_rate": [0.01, 0.1, 0.2],
+        "subsample": [0.7, 0.8, 1.0]
+    }
+
+    best_rf, rf_best_params, rf_best_score = tune_hyperparameters(
+        RandomForestRegressor(random_state=42),
+        rf_params,
+        X_train, y_train
+    )
+    print("\nBest Random Forest params:", rf_best_params)
+    all_results["Random Forest"]["tuned"] = {"params": rf_best_params, "cv_score": rf_best_score}
+
+    best_xgb, xgb_best_params, xgb_best_score = tune_hyperparameters(
+        XGBRegressor(random_state=42, n_jobs=-1),
+        xgb_params,
+        X_train, y_train
+    )
+    print("\nBest XGBoost params:", xgb_best_params)
+    all_results["XGBoost"]["tuned"] = {"params": xgb_best_params, "cv_score": xgb_best_score}
 
     save_results(all_results)
 
