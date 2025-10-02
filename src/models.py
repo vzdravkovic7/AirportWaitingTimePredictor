@@ -30,5 +30,9 @@ def train_xgboost(X_train, y_train):
         random_state=42,
         n_jobs=-1
     )
-    model.fit(X_train.values, y_train.values, verbose=True)
+
+    X_in = X_train.values if hasattr(X_train, "values") else X_train
+    y_in = y_train.values if hasattr(y_train, "values") else y_train
+
+    model.fit(X_in, y_in, verbose=True)
     return model
