@@ -2,12 +2,19 @@ import pandas as pd
 import glob
 from sklearn.impute import SimpleImputer
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.model_selection import train_test_split
 from features import one_hot_encode, normalize_columns
 
 def load_data(path="../data/*.csv"):
     files = glob.glob(path)
     dfs = [pd.read_csv(f) for f in files]
     return pd.concat(dfs, ignore_index=True)
+
+def split_dataset(X, y, train_ratio=0.7, val_ratio=0.15, test_ratio=0.15, random_state=42):
+    X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=test_ratio, random_state=random_state)
+    val_relative = val_ratio / (train_ratio + val_ratio)
+    X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=val_relative, random_state=random_state)
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 def add_date_features(df):
     if "FlightDate" in df.columns:

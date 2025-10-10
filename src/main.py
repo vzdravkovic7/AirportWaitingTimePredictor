@@ -1,4 +1,4 @@
-from preprocessing import load_data, add_date_features, clean_data, impute_missing, preprocess_serving, ToNumpy
+from preprocessing import load_data, add_date_features, clean_data, impute_missing, preprocess_serving, ToNumpy, split_dataset
 from features import categorize_wait_time, one_hot_encode, normalize_columns
 from models import train_linear_regression, train_random_forest, train_xgboost
 from sklearn.model_selection import train_test_split
@@ -33,7 +33,8 @@ def main():
     X = df.drop(columns=[c for c in drop_cols if c in df.columns])
     X = impute_missing(X)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_val, X_test, y_train, y_val, y_test = split_dataset(X, y)
+    print(f"Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
 
     # Train baseline models
     models = {
@@ -42,29 +43,53 @@ def main():
         "XGBoost": train_xgboost(X_train, y_train),
     }
 
-    # Evaluate models
     all_results = {}
+
+    # Evaluate models
     for name, model in models.items():
+        print(f"\n{name} performance:")
+
+        # Evaluate on validation set first
+        X_val_eval = X_val.values if name == "XGBoost" else X_val
+        val_preds = model.predict(X_val_eval)
+        val_metrics = evaluate(y_val, val_preds)
+        print("Validation metrics:", val_metrics)
+
+        # Evaluate on test set
         X_eval = X_test.values if name == "XGBoost" else X_test
         preds = model.predict(X_eval)
-        metrics = evaluate(y_test, preds)
-        print(f"\n{name} performance (baseline):")
-        print(metrics)
-        all_results[name] = {"baseline": metrics}
+        test_metrics = evaluate(y_test, preds)
+        print("Test metrics:", test_metrics)
 
+        all_results[name] = {"validation": val_metrics, "test": test_metrics}
+
+        # Cross-validation
         cv_results = cross_validate_all_metrics(model, X, y, cv=5)
         all_results[name]["cross_val"] = cv_results
 
     # Hyperparameter tuning
     print("\nStarting hyperparameter tuning...")
-    rf_params = {"n_estimators": [100, 200, 300], "max_depth": [None, 10, 20, 30], "min_samples_split": [2, 5, 10]}
-    xgb_params = {"n_estimators": [100, 200, 300], "max_depth": [3, 6, 10], "learning_rate": [0.01, 0.1, 0.2], "subsample": [0.7, 0.8, 1.0]}
+    rf_params = {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [None, 10, 20, 30],
+        "min_samples_split": [2, 5, 10]
+    }
+    xgb_params = {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [3, 6, 10],
+        "learning_rate": [0.01, 0.1, 0.2],
+        "subsample": [0.7, 0.8, 1.0]
+    }
 
-    best_rf, rf_best_params, rf_best_score = tune_hyperparameters(RandomForestRegressor(random_state=42), rf_params, X_train, y_train)
+    best_rf, rf_best_params, rf_best_score = tune_hyperparameters(
+        RandomForestRegressor(random_state=42), rf_params, X_train, y_train
+    )
     print("\nBest Random Forest params:", rf_best_params)
     all_results["Random Forest"]["tuned"] = {"params": rf_best_params, "cv_score": rf_best_score}
 
-    best_xgb, xgb_best_params, xgb_best_score = tune_hyperparameters(XGBRegressor(random_state=42, n_jobs=-1), xgb_params, X_train, y_train)
+    best_xgb, xgb_best_params, xgb_best_score = tune_hyperparameters(
+        XGBRegressor(random_state=42, n_jobs=-1), xgb_params, X_train, y_train
+    )
     print("\nBest XGBoost params:", xgb_best_params)
     all_results["XGBoost"]["tuned"] = {"params": xgb_best_params, "cv_score": xgb_best_score}
 
