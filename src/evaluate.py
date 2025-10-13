@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import json
 from datetime import datetime
@@ -68,9 +69,21 @@ def cross_validate_all_metrics(model, X, y, cv=5):
 
 def save_results(results, filename="results.json"):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    results["timestamp"] = timestamp
-    with open(filename, "a") as f:
-        f.write(json.dumps(results) + "\n")
+
+    if os.path.exists(filename):
+        try:
+            with open(filename, "r") as f:
+                existing = json.load(f)
+        except json.JSONDecodeError:
+            existing = {}
+    else:
+        existing = {}
+
+    existing.update(results)
+    existing["timestamp"] = timestamp
+
+    with open(filename, "w") as f:
+        json.dump(existing, f, indent=2)
 
 def evaluate_classification(y_true, y_pred):
     return {

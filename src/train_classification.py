@@ -1,7 +1,7 @@
 from preprocessing import load_data, add_date_features, clean_data, impute_missing, split_dataset
 from features import categorize_wait_time, one_hot_encode, normalize_columns
 from models import train_logistic_regression_classifier, train_rf_classifier, train_mlp_classifier
-from evaluate import evaluate_classification
+from evaluate import evaluate_classification, save_results
 
 
 def train_classification():
@@ -29,15 +29,18 @@ def train_classification():
         "MLP Classifier": train_mlp_classifier(X_train, y_train),
     }
 
+    all_results = {}
+
     for name, model in models.items():
         print(f"\n{name} performance:")
-
         val_preds = model.predict(X_val)
         val_metrics = evaluate_classification(y_val, val_preds)
         print("Validation metrics:", val_metrics)
-
         preds = model.predict(X_test)
         test_metrics = evaluate_classification(y_test, preds)
         print("Test metrics:", test_metrics)
+        all_results[name] = {"validation": val_metrics, "test": test_metrics}
+
+    save_results(all_results)
 
     print("\nClassification phase completed successfully.")
