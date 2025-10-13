@@ -1,7 +1,7 @@
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from xgboost import XGBRegressor
-from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPRegressor, MLPClassifier
 
 def train_linear_regression(X_train, y_train):
     print("Training Linear Regression...")
@@ -55,8 +55,29 @@ def train_rf_classifier(X_train, y_train, n_estimators=200, max_depth=15):
     model.fit(X_train, y_train)
     return model
 
+def train_mlp_regressor(X_train, y_train):
+    print("Training MLP Regressor...")
+    model = MLPRegressor(
+        hidden_layer_sizes=(64, 32),
+        activation='relu',
+        solver='adam',
+        learning_rate_init=0.001,
+        max_iter=500,
+        random_state=42
+    )
+    model.fit(X_train, y_train)
+    return model
+
+
 def train_mlp_classifier(X_train, y_train):
     print("Training MLP Classifier...")
-    model = MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=500, random_state=42)
+    model = MLPClassifier(
+        hidden_layer_sizes=(64, 32),
+        activation='relu',
+        solver='adam',
+        learning_rate_init=0.001,
+        max_iter=500,
+        random_state=42
+    )
     model.fit(X_train, y_train)
     return model
