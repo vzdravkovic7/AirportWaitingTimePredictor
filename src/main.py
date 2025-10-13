@@ -8,6 +8,7 @@ from preprocessing import load_data, clean_data, preprocess_serving, ToNumpy
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 from sklearn.neural_network import MLPRegressor
+from visualizations import plot_results
 
 
 def make_pipeline(model):
@@ -29,7 +30,7 @@ def main():
     y_full = raw_df["AverageWait"]
     X_full = raw_df[["AirportCode", "TerminalName", "FlightDate", "HourRange", "TotalPassengerCount", "FlightCount"]]
 
-    chosen_model_name = "MLP Regressor"
+    chosen_model_name = "XGBoost"
     if chosen_model_name == "Linear Regression":
         chosen_model = LinearRegression()
     elif chosen_model_name == "Random Forest":
@@ -50,6 +51,8 @@ def main():
     pipeline.fit(X_full, y_full)
     save_model(pipeline)
     print(f"\nSaved pipeline with {chosen_model_name} model for serving.")
+    
+    plot_results()
 
 
 if __name__ == "__main__":

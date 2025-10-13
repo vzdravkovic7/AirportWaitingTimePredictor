@@ -4,6 +4,11 @@ from models import train_linear_regression, train_random_forest, train_xgboost, 
 from evaluate import evaluate, save_results, cross_validate_all_metrics, tune_hyperparameters
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
+from visualizations import (
+    plot_predictions_vs_actual,
+    plot_residuals,
+    plot_residuals_boxplot
+)
 
 
 def train_regression():
@@ -76,6 +81,19 @@ def train_regression():
     all_results["XGBoost"]["tuned"] = {"params": xgb_best_params, "cv_score": xgb_best_score}
 
     save_results(all_results)
+
+    print("\nGenerating regression visualizations...")
+
+    models_dict = {
+        "Linear Regression": models["Linear Regression"],
+        "Random Forest": models["Random Forest"],
+        "XGBoost": models["XGBoost"],
+        "MLP Regressor": models["MLP Regressor"],
+    }
+
+    plot_predictions_vs_actual(models_dict, X_test, y_test)
+    plot_residuals(models_dict, X_test, y_test)
+    plot_residuals_boxplot(models_dict, X_test, y_test)
 
     print("\nRegression phase completed successfully.")
     return all_results, rf_best_params, xgb_best_params
