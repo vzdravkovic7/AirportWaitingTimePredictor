@@ -1,6 +1,6 @@
 from preprocessing import load_data, add_date_features, clean_data, impute_missing, split_dataset
 from features import categorize_wait_time, one_hot_encode, normalize_columns
-from models import train_linear_regression, train_random_forest, train_xgboost
+from models import train_linear_regression, train_random_forest, train_xgboost, train_mlp_regressor
 from evaluate import evaluate, save_results, cross_validate_all_metrics, tune_hyperparameters
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
@@ -29,6 +29,7 @@ def train_regression():
         "Linear Regression": train_linear_regression(X_train, y_train),
         "Random Forest": train_random_forest(X_train, y_train),
         "XGBoost": train_xgboost(X_train, y_train),
+        "MLP Regressor": train_mlp_regressor(X_train, y_train),
     }
 
     all_results = {}
