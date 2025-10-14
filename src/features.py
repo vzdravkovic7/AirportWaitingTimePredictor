@@ -10,7 +10,7 @@ def categorize_wait_time(df, training=True):
         def label_wait(x):
             if x <= 15:
                 return "short"
-            elif x <= 45:
+            elif x <= 30:
                 return "medium"
             else:
                 return "long"

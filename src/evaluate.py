@@ -6,7 +6,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, m
 from sklearn.model_selection import cross_validate, RandomizedSearchCV
 
 
-def tune_hyperparameters(model, param_distributions, X, y, cv=3, n_iter=10, scoring="neg_mean_absolute_error"):
+def tune_hyperparameters(model, param_distributions, X, y, cv=2, n_iter=3, scoring="neg_mean_absolute_error"):
     if not isinstance(X, np.ndarray):
         X = X.to_numpy()
     if not isinstance(y, np.ndarray):
@@ -35,7 +35,7 @@ def evaluate(y_true, y_pred):
     }
 
 
-def cross_validate_all_metrics(model, X, y, cv=5):
+def cross_validate_all_metrics(model, X, y, cv=3):
     if not isinstance(X, np.ndarray):
         X = X.to_numpy()
     if not isinstance(y, np.ndarray):
