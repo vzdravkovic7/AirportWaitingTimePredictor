@@ -57,13 +57,13 @@ def train_regression():
 
     print("\nStarting hyperparameter tuning...")
     rf_params = {
-        "n_estimators": [100, 200, 300],
-        "max_depth": [None, 10, 20, 30],
+        "n_estimators": [30, 70, 100],
+        "max_depth": [2, 4, 6, 8],
         "min_samples_split": [2, 5, 10]
     }
     xgb_params = {
-        "n_estimators": [100, 200, 300],
-        "max_depth": [3, 6, 10],
+        "n_estimators": [30, 70, 100],
+        "max_depth": [3, 6, 8],
         "learning_rate": [0.01, 0.1, 0.2],
         "subsample": [0.7, 0.8, 1.0]
     }

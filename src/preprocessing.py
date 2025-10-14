@@ -78,3 +78,10 @@ class ToNumpy(BaseEstimator, TransformerMixin):
         return self
     def transform(self, X):
         return X.values if hasattr(X, "values") else X
+
+def preprocess_serving_classification(df):
+    df = add_date_features(df)
+    df = one_hot_encode(df, ["AirportCode", "TerminalName", "HourRange", "season"], training=False)
+    df = normalize_columns(df, ["TotalPassengerCount", "FlightCount"])
+    df = impute_missing(df)
+    return df
