@@ -4,7 +4,7 @@ import seaborn as sb
 import pandas as pd
 
 
-def plot_results(results_path="results.json"):
+def plot_results(results_path="src/results.json"):
     with open(results_path, "r") as f:
         results = json.load(f)
 

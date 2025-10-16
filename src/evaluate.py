@@ -67,7 +67,8 @@ def cross_validate_all_metrics(model, X, y, cv=3):
     return results
 
 
-def save_results(results, filename="results.json"):
+def save_results(results, filename="src/results.json", demo=False):
+    if demo: filename = "../src/results.json"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if os.path.exists(filename):

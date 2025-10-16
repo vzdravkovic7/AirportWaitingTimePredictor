@@ -1,27 +1,27 @@
-from preprocessing import load_data, add_date_features, clean_data, impute_missing, split_dataset
-from features import categorize_wait_time, one_hot_encode, normalize_columns
-from models import train_linear_regression, train_random_forest, train_xgboost, train_mlp_regressor
-from evaluate import evaluate, save_results, cross_validate_all_metrics, tune_hyperparameters
+from src.preprocessing import load_data, add_date_features, clean_data, impute_missing, split_dataset
+from src.features import categorize_wait_time, one_hot_encode, normalize_columns
+from src.models import train_linear_regression, train_random_forest, train_xgboost, train_mlp_regressor
+from src.evaluate import evaluate, save_results, cross_validate_all_metrics, tune_hyperparameters
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
-from visualizations import (
+from src.visualizations import (
     plot_predictions_vs_actual,
     plot_residuals,
     plot_residuals_boxplot
 )
 
 
-def train_regression():
+def train_regression(demo=False):
     print("=== REGRESSION PHASE ===")
 
-    df = load_data()
+    df = load_data(demo=demo)
     df = add_date_features(df)
     df = clean_data(df)
     df = categorize_wait_time(df)
     df = one_hot_encode(df, ["AirportCode", "TerminalName", "HourRange", "season"], training=True)
     df = normalize_columns(df, ["TotalPassengerCount", "FlightCount"])
 
-    df = df.sample(20000, random_state=42)
+    # df = df.sample(20000, random_state=42)
     y = df["AverageWait"]
     drop_cols = ["AverageWait", "WaitCategory", "FlightDate", "AirportName", "LastUpdated", "SiteId"]
     X = df.drop(columns=[c for c in drop_cols if c in df.columns])
@@ -80,20 +80,20 @@ def train_regression():
     print("\nBest XGBoost params:", xgb_best_params)
     all_results["XGBoost"]["tuned"] = {"params": xgb_best_params, "cv_score": xgb_best_score}
 
-    save_results(all_results)
+    save_results(all_results, demo=demo)
 
-    print("\nGenerating regression visualizations...")
+    # print("\nGenerating regression visualizations...")
 
-    models_dict = {
-        "Linear Regression": models["Linear Regression"],
-        "Random Forest": models["Random Forest"],
-        "XGBoost": models["XGBoost"],
-        "MLP Regressor": models["MLP Regressor"],
-    }
+    # models_dict = {
+    #     "Linear Regression": models["Linear Regression"],
+    #     "Random Forest": models["Random Forest"],
+    #     "XGBoost": models["XGBoost"],
+    #     "MLP Regressor": models["MLP Regressor"],
+    # }
 
-    plot_predictions_vs_actual(models_dict, X_test, y_test)
-    plot_residuals(models_dict, X_test, y_test)
-    plot_residuals_boxplot(models_dict, X_test, y_test)
+    # plot_predictions_vs_actual(models_dict, X_test, y_test)
+    # plot_residuals(models_dict, X_test, y_test)
+    # plot_residuals_boxplot(models_dict, X_test, y_test)
 
     print("\nRegression phase completed successfully.")
     return all_results, rf_best_params, xgb_best_params

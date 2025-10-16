@@ -3,9 +3,10 @@ import glob
 from sklearn.impute import SimpleImputer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import train_test_split
-from features import one_hot_encode, normalize_columns
+from src.features import one_hot_encode, normalize_columns
 
-def load_data(path="../data/*.csv"):
+def load_data(path="data/*.csv", demo=False):
+    if demo: path = "../data/*.csv"
     files = glob.glob(path)
     dfs = [pd.read_csv(f) for f in files]
     return pd.concat(dfs, ignore_index=True)

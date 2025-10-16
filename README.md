@@ -70,8 +70,7 @@ pip install -r requirements.txt
 
 Pokreće se ceo flow za regresiju i klasifikaciju:
 ```bash
-cd src
-python main.py
+python -m src.main
 ```
 Ovaj proces:
 
@@ -87,12 +86,12 @@ Tipično trajanje: ~6–7 minuta
 
 ### Pokretanje CLI servisa
 ```bash
-python serve.py --csv examples/sample_input.csv
+python -m src.serve --csv src/examples/sample_input.csv
 ```
 
 ### Pokretanje API servisa
 ```bash
-python serve.py --api
+python -m src.serve --api
 ```
 | Endpoint               | Opis                                           | Primer                                                |
 | ---------------------- | ---------------------------------------------- | ----------------------------------------------------- |

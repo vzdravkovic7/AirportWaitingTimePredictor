@@ -1,6 +1,6 @@
-from train_regression import train_regression
-from train_classification import train_classification
-from persistence import save_model, save_class_model
+from src.train_regression import train_regression
+from src.train_classification import train_classification
+from src.persistence import save_model, save_class_model
 from xgboost import XGBRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
@@ -8,15 +8,15 @@ from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
-from preprocessing import (
+from src.preprocessing import (
     load_data,
     clean_data,
     preprocess_serving,
     preprocess_serving_classification,
     ToNumpy,
 )
-from features import categorize_wait_time
-from visualizations import plot_results
+from src.features import categorize_wait_time
+from src.visualizations import plot_results
 
 
 def make_pipeline(model, preprocess_func):
@@ -88,7 +88,7 @@ def main():
     save_class_model(classification_pipeline)
     print("Saved pipeline with MLP Classifier model for serving.")
 
-    plot_results()
+    # plot_results()
 
 
 if __name__ == "__main__":

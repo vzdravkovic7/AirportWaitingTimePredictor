@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-from persistence import load_model, load_class_model
+from src.persistence import load_model, load_class_model
 from fastapi import FastAPI, UploadFile, File
 import uvicorn
 import io
